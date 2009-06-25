@@ -24,6 +24,7 @@ set_error_handler('fuzz_error_handler');
 $SKIP = parse_ini_file(dirname(__FILE__) .'/bughunter.ini', true);
 
 class _stdclass extends stdclass {
+	public $a;
 	public function __toString() {
 		return '';
 	}
@@ -31,6 +32,10 @@ class _stdclass extends stdclass {
 
 $arr = array();
 $arr[0] = &$arr;
+
+$objtest = new _stdclass;
+$objtest->a = array();
+$objtest->a[] = &$objtest->a;
 
 /* Parameters */
 $PARAMS = array('Maximum integer' 	=> PHP_INT_MAX,
@@ -50,8 +55,9 @@ $PARAMS = array('Maximum integer' 	=> PHP_INT_MAX,
 				'Valid callback'	=> 'strtoupper',
 				'Invalid callback'  => 'foobar::bar',
 				'Invalid callback 2 ' => array('foobar', 'bar'),
-				'Invalid callback 3'  => array(1, 2));
-//$PARAMS = array_merge($PARAMS, get_defined_constants());
+				'Invalid callback 3'  => array(1, 2),
+				'Object 2'			  => $objtest,
+				'Closure'			  => function () { return new stdClass; });
 
 /* Valid arguments for class instantiation to be used in methods invocation */
 $INSTANCE = array(	/* Date */
@@ -101,13 +107,11 @@ $INSTANCE = array(	/* Date */
 					'splfileinfo'					=> array(__FILE__),
 					'splfileobject'					=> array(__FILE__),
 					/* SQLite3 */
-				//	'sqlite3'						=> array(__DIR__ .'/sqlite3test'),
-					//'sqlite3stmt'					=> array(new sqlite3(__DIR__ .'/sqlite3test'), 2),
+					'sqlite3'						=> array(__DIR__ .'/sqlite3test'),
+					'sqlite3stmt'					=> array(new sqlite3(__DIR__ .'/sqlite3test'), 2),
 					'sqlitedatabase'				=> array(__DIR__ .'/sqlite3test'));
 
-if (version_compare(PHP_VERSION, '5.3', '>=')) {/*
-	$lambda = create_function('', 'return function () { return 1; };');
-	$PARAMS['Closure'] = $lambda();*/
+if (version_compare(PHP_VERSION, '5.3', '>=')) {
 	$INSTANCE['dateperiod'] = array(new DateTime('2008-07-20T22:44:53+0200'), DateInterval::createFromDateString('1 day'), 10);
 }
 
@@ -275,7 +279,7 @@ function fuzz_check_params($mode, ReflectionFunctionAbstract $function) {
 				continue;
 			}
 
-			printf(" >> [%d] Argument type: %s\n", $arg_num, $title);
+			printf(" >> [%d] <%s> Argument type: %s\n", $arg_num, $func_name, $title);
 			print "    -------------------------------------------------------\n";
 			
 			if (fuzz_skip($mode, __FUNCTION__, $func_name, $arg_num)) {
@@ -419,7 +423,6 @@ function fuzz_handler_test($type, $name) {
 				fuzz_check_class_handlers($class);
 
 				foreach ($class->getMethods() as $method) {
-					// if ($n++ == 2) break;
 					fuzz_handler_test(FUZZ_METHOD, $class->name .'::'. $method->name);
 				}
 			} catch (Exception $e) {
@@ -432,7 +435,6 @@ function fuzz_handler_test($type, $name) {
 				natcasesort($extensions);
 
 				foreach ($extensions as $extension) {
-					// if (++$n == 28) break;
 					fuzz_handler_test(FUZZ_EXTENSION, $extension);
 				}
 			} else {
