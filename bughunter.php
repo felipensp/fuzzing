@@ -21,7 +21,7 @@ function fuzz_error_handler($errno, $errstr, $errfile, $errline) {
 set_error_handler('fuzz_error_handler');
 
 /* Skip */
-$SKIP = parse_ini_file(dirname(__FILE__) .'/bughunter.ini', true);	
+$SKIP = parse_ini_file(dirname(__FILE__) .'/bughunter.ini', true);
 
 class _stdclass extends stdclass {
 	public function __toString() {
@@ -134,6 +134,18 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 			if (in_array($name, $SKIP['ignored_classes']['class'])) {
 				return true;
 			}
+			/* Ignored classes in specific version */
+			if (in_array($name, $SKIP['ignored_classes:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+				return true;
+			}			
+			/* Skip per test */
+			if (is_null($param) && in_array($name, $SKIP[$test]['skip'])) {
+				return true;
+			}
+			/* Skip per test in specific version */
+			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
+				return true;
+			}
 			/* Skip per argument type */
 			if (!is_null($param) && preg_grep('/'. $name .':(?:\d+,)*'. $param .'(?:,.*|$)/', $SKIP[$test]['skip'])) {
 				return true;
@@ -143,8 +155,16 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 			if (in_array($name, $SKIP['ignored_functions']['func'])) {
 				return true;
 			}
+			/* Ignored classes in specific version */
+			if (in_array($name, $SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+				return true;
+			}		
 			/* Skip per test */
 			if (is_null($param) && in_array($name, $SKIP[$test]['skip'])) {
+				return true;
+			}
+			/* Skip per test in specific version */
+			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
 				return true;
 			}
 			/* Skip per argument type */
@@ -156,8 +176,16 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 			if (in_array($name, $SKIP['ignored_methods']['method'])) {
 				return true;
 			}
+			/* Ignored classes in specific version */
+			if (in_array($name, $SKIP['ignored_methods:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+				return true;
+			}		
 			/* Skip per test */
 			if (is_null($param) && in_array($name, $SKIP[$test]['skip'])) {
+				return true;
+			}
+			/* Skip per test in specific version */
+			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
 				return true;
 			}
 			/* Skip per argument type */
@@ -166,9 +194,7 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 			}
 			break;
 	}
-	
 	return false;
-	//return in_array($name, $SKIP[$mode][$test]['normal']) || preg_match($SKIP[$mode][$test]['regex'], $name);
 }
 
 /* Return a instance to given class name */
@@ -240,8 +266,8 @@ function fuzz_check_params($mode, ReflectionFunctionAbstract $function) {
 			}
 		}
 	}
-			
-	foreach ($PARAMS as $title => &$value) {
+
+	foreach ($PARAMS as $title => &$value) {		
 		try {
 			/* Skip argument type not desired */
 			if (isset($OPTIONS['a']) && $OPTIONS['a'] != $arg_num) {
@@ -261,8 +287,8 @@ function fuzz_check_params($mode, ReflectionFunctionAbstract $function) {
 			/* void function */
 			if ($func_args_total == 0) {
 				print "    - Passing 0 parameter\n";
-				if ($mode == FUZZ_FUNCTION) {
-					$retval = $function->invokeArgs(array());
+				if ($mode == FUZZ_FUNCTION) {					
+					$retval = $function->invokeArgs(array());					
 					printf("      return: %s\n", fuzz_return_value($retval));
 				} else {
 					if ($instance !== false) {
@@ -443,24 +469,6 @@ function fuzz_handler_test($type, $name) {
 	}
 }
 
-/* Remove probable files created on the test */
-function fuzz_clean() {
-	@rmdir('0');
-	@unlink('0');
-
-	foreach (glob(PHP_INT_MAX .'/*') as $file) {
-		@unlink($file);
-	}
-	@rmdir(PHP_INT_MAX);
-	@unlink(PHP_INT_MAX);
-
-	@rmdir(~PHP_INT_MAX);
-	@unlink(~PHP_INT_MAX);
-
-	@rmdir(PHP_INT_MAX+1);
-	@unlink(PHP_INT_MAX+1);
-}
-
 $OPTIONS = getopt('a:c:e::f:hm:v');
 
 foreach ($OPTIONS as $option => $value) {
@@ -483,7 +491,7 @@ OPTIONS;
 		case FUZZ_FUNCTION:
 		case FUZZ_METHOD:
 			fuzz_handler_test($option, $value);
-			fuzz_clean();
 			break;
 	}
 }
+
