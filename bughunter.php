@@ -165,7 +165,7 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 			if (isset($SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]) &&
 				in_array($name, $SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
 				return true;
-			}		
+			}
 			/* Skip per test */
 			if (is_null($param) && in_array($name, $SKIP[$test]['skip'])) {
 				return true;
@@ -246,7 +246,8 @@ function fuzz_check_params($mode, ReflectionFunctionAbstract $function) {
 		$func_name = $function->class .'::'. $func_name;		
 	}
 	
-	printf("\n%s: %s - Arguments: [%d:%d]\n", ($mode == FUZZ_METHOD ? 'Method' : 'Function'), $func_name, $func_args_required, $func_args_total);
+	printf("\n%s: %s - Arguments: [%d:%d]\n", ($mode == FUZZ_METHOD ? 'Method' : 'Function'),
+		$func_name, $func_args_required, $func_args_total);
 	print "---------------------------------------------------------------\n";
 	
 	/* Skipping */
