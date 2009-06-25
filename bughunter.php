@@ -139,7 +139,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Ignored classes in specific version */
-			if (in_array($name, $SKIP['ignored_classes:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+			if (isset($SKIP['ignored_classes:'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP['ignored_classes:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
 				return true;
 			}			
 			/* Skip per test */
@@ -147,7 +148,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Skip per test in specific version */
-			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
+			if (is_null($param) && isset($SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
 				return true;
 			}
 			/* Skip per argument type */
@@ -160,7 +162,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Ignored classes in specific version */
-			if (in_array($name, $SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+			if (isset($SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP['ignored_functions:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
 				return true;
 			}		
 			/* Skip per test */
@@ -168,7 +171,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Skip per test in specific version */
-			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
+			if (is_null($param) && isset($SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
 				return true;
 			}
 			/* Skip per argument type */
@@ -181,7 +185,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Ignored classes in specific version */
-			if (in_array($name, $SKIP['ignored_methods:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
+			if (isset($SKIP['ignored_methods:'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP['ignored_methods:'.substr(PHP_VERSION_ID, 0, 3)]['class'])) {
 				return true;
 			}		
 			/* Skip per test */
@@ -189,7 +194,8 @@ function fuzz_skip($mode, $test, $name, $param = NULL) {
 				return true;
 			}
 			/* Skip per test in specific version */
-			if (is_null($param) && in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
+			if (is_null($param) && isset($SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]) &&
+				in_array($name, $SKIP[$test.':'.substr(PHP_VERSION_ID, 0, 3)]['skip'])) {
 				return true;
 			}
 			/* Skip per argument type */
@@ -208,7 +214,7 @@ function fuzz_get_instance($class) {
 	$class_name = strtolower($class->name);
 	if (isset($INSTANCE[$class_name])) {
 		return $class->newInstanceArgs($INSTANCE[$class_name]);
-	} 
+	}
 	return $class->newInstance();
 }
 
