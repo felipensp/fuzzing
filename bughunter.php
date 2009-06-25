@@ -50,7 +50,7 @@ $PARAMS = array('Maximum integer' 	=> PHP_INT_MAX,
 				'Valid callback'	=> 'strtoupper',
 				'Invalid callback'  => 'foobar::bar',
 				'Invalid callback 2 ' => array('foobar', 'bar'),
-				'Invalid callback 3' => array(1, 2));
+				'Invalid callback 3'  => array(1, 2));
 //$PARAMS = array_merge($PARAMS, get_defined_constants());
 
 /* Valid arguments for class instantiation to be used in methods invocation */
