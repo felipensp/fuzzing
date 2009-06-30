@@ -1,7 +1,28 @@
 <?php
 
-set_time_limit(0);
+/*
+ * BugHunter
+ * 
+ * Author: Felipe Nascimento Silva Pena
+ * Contact: felipensp at gmail dot com
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
+/* Settings */
+set_time_limit(0);
+ini_set('memory_limit', -1);
 date_default_timezone_set('America/Sao_Paulo');
 
 /* Options */
@@ -10,6 +31,7 @@ define('FUZZ_EXTENSION',	'e');
 define('FUZZ_FUNCTION', 	'f');
 define('FUZZ_METHOD', 		'm');
 
+/* Error handler */
 function fuzz_error_handler($errno, $errstr, $errfile, $errline) {
 	global $OPTIONS;
 
@@ -30,6 +52,7 @@ class _stdclass extends stdclass {
 	}
 }
 
+/* Cyclic references */
 $arr = array();
 $arr[0] = &$arr;
 
@@ -38,22 +61,22 @@ $objtest->a = array();
 $objtest->a[] = &$objtest->a;
 
 /* Parameters */
-$PARAMS = array('Maximum integer' 	=> PHP_INT_MAX,
-				'Negative integer'	=> ~PHP_INT_MAX,
-				'Zero'				=> 0,
-				'Float' 			=> PHP_INT_MAX+1,
-				'Large string'		=> str_repeat(implode(range('a', 'z')), 200),
-				'NULL Byte'			=> "\0",
-				'Empty string'		=> '',
-				'Binary string'		=> b'',
-				'Resource'			=> fopen(__FILE__, 'r'),
-				'Object'			=> new _stdclass,
-				'Valid class name'  => '_stdClass',
-				'NULL'				=> NULL,
-				'Array'				=> range(1, 100),
-				'Array recursion'	=> $arr,
-				'Valid callback'	=> 'strtoupper',
-				'Invalid callback'  => 'foobar::bar',
+$PARAMS = array('Maximum integer' 	  => PHP_INT_MAX,
+				'Negative integer'	  => ~PHP_INT_MAX,
+				'Zero'				  => 0,
+				'Float' 			  => PHP_INT_MAX+1,
+				'Large string'		  => str_repeat(implode(range('a', 'z')), 200),
+				'NULL Byte'			  => "\0",
+				'Empty string'		  => '',
+				'Binary string'		  => b'',
+				'Resource'			  => fopen(__FILE__, 'r'),
+				'Object'			  => new _stdclass,
+				'Valid class name'    => '_stdClass',
+				'NULL'				  => NULL,
+				'Array'				  => range(1, 100),
+				'Array recursion'	  => $arr,
+				'Valid callback'	  => 'strtoupper',
+				'Invalid callback'    => 'foobar::bar',
 				'Invalid callback 2 ' => array('foobar', 'bar'),
 				'Invalid callback 3'  => array(1, 2),
 				'Object 2'			  => $objtest,
