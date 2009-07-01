@@ -35,7 +35,7 @@ define('FUZZ_METHOD', 		'm');
 function fuzz_error_handler($errno, $errstr, $errfile, $errline) {
 	global $OPTIONS;
 
-	if (isset($OPTIONS['v'])) {
+	if (isset($OPTIONS['v']) && error_reporting() != 0) {
 		printf("\n[%s; line: %d]\n", $errstr, $errline);
 	}
 }
@@ -94,7 +94,7 @@ $INSTANCE = array(	/* Date */
 					'domprocessinginstruction' 		=> array('foobar'),
 					'domxpath'						=> array(new DOMDocument),
 					/* PDO */
-					'pdo'							=> array('sqlite:memory:'),
+					'pdo'							=> array('sqlite::memory:'),
 					/* Phar */
 					'phar'  						=> array(__DIR__ .'/phar_test.phar'),
 					/* Reflection */
@@ -148,6 +148,18 @@ if (extension_loaded('intl')) {
 
 if (extension_loaded('oauth')) {
 	$INSTANCE['oauth'] = array(1, 1);
+}
+
+function fuzz_clean() {
+	$path = dirname(__FILE__);
+	@unlink('-2147483648');
+	@unlink('0');
+	@unlink(PHP_INT_MAX);
+	@unlink(PHP_INT_MAX+1);
+	@unlink('_stdClass');
+	@unlink('foobar::bar');
+	@unlink('memory:');
+	@unlink('strtoupper');
 }
 
 /* Check if the given class/method/function should be skipped */				  
@@ -523,7 +535,7 @@ OPTIONS;
 		case FUZZ_FUNCTION:
 		case FUZZ_METHOD:
 			fuzz_handler_test($option, $value);
+			fuzz_clean();
 			break;
 	}
 }
-
