@@ -316,7 +316,7 @@ function fuzz_check_params($mode, ReflectionFunctionAbstract $function) {
 	foreach ($PARAMS as $title => &$value) {		
 		try {
 			/* Skip argument type not desired */
-			if (isset($OPTIONS['a']) && $OPTIONS['a'] != $arg_num) {
+			if (isset($OPTIONS[b'a']) && $OPTIONS[b'a'] != $arg_num) {
 				$arg_num++;
 				continue;
 			}
@@ -408,7 +408,12 @@ function fuzz_check_class_handlers(ReflectionClass $class) {
 	}
 
 	printf("    - Checking comparison: %d\n", $instance == $instance);
-	printf("    - Serializing object: %s\n", $serialized = serialize($instance));
+	
+	if (fuzz_skip(FUZZ_CLASS, __FUNCTION__, $class->name, 5)) {
+		printf("    >> Skipped attempt to serialize object\n");
+	} else {
+		printf("    - Serializing object: %s\n", $serialized = serialize($instance));
+	}
 	
 	if (fuzz_skip(FUZZ_CLASS, __FUNCTION__, $class->name, 2)) {
 		printf("    >> Skipped attempt to unserialising object\n");
@@ -465,6 +470,10 @@ function fuzz_handler_test($type, $name) {
 				fuzz_check_class_handlers($class);
 
 				foreach ($class->getMethods() as $method) {
+					if ($class->name != $method->class) {
+						/* Inherited method */
+						continue;
+					}
 					fuzz_handler_test(FUZZ_METHOD, $class->name .'::'. $method->name);
 				}
 			} catch (Exception $e) {
