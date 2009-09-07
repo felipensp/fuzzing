@@ -462,6 +462,14 @@ function fuzz_check_class_handlers(ReflectionClass $class) {
 }
 
 function fuzz_handler_test($type, $name) {
+	global $OPTIONS;
+
+	if (isset($OPTIONS['n'])) {
+		if ($OPTIONS['n'] == 0) {
+			return;
+		}
+	}
+	
 	switch ($type) {
 		case FUZZ_CLASS:
 			try {
@@ -514,6 +522,11 @@ function fuzz_handler_test($type, $name) {
 		case FUZZ_METHOD:
 			try {
 				$method = new ReflectionMethod($name);
+				if (isset($OPTIONS['n'])) {
+					if ($OPTIONS['n']-- == 0) {
+						return;
+					}
+				}
 				fuzz_check_params($type, $method);
 			} catch (Exception $e) {
 				printf("Error: %s\n", $e->getMessage());
@@ -522,7 +535,7 @@ function fuzz_handler_test($type, $name) {
 	}
 }
 
-$OPTIONS = getopt('a:c:e::f:hm:v');
+$OPTIONS = getopt('a:c:e::f:hm:n:v');
 
 foreach ($OPTIONS as $option => $value) {
 	switch ($option) {
@@ -534,6 +547,7 @@ Options:
  -e extension name
  -f function name
  -m method name 
+ -n number of function/class/method
  -v verbose (show the error messages)
 
 
