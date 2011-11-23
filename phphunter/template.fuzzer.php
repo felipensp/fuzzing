@@ -9,9 +9,10 @@ class TemplateFuzzer extends UtilsFuzzer {
 	protected $config  = array();
 	
 	public function __construct($config) {
+		$types = array(1 => 'function', 2 => 'method', 3 => 'class');
+
 		// Template files
-		foreach (glob('template/{1,2,3}*.t', GLOB_BRACE) as $template) {
-			$types = array(1 => 'function', 2 => 'method', 3 => 'class');
+		foreach (glob('template/{1,2,3}*.t', GLOB_BRACE) as $template) {			
 			$id = intval(substr(basename($template), 0, 1));
 			$this->templates[$types[$id]][] = $template;
 		}
@@ -29,7 +30,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		$this->args = $this->genArgs();
 	}
 	
-	public function genArgs() {
+	private function genArgs() {
 		$types = array(
 			'',
 			'1',
@@ -67,7 +68,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		return $args;
 	}
 	
-	public function runTest($php, $metadata, $src) {
+	private function runTest($php, $metadata, $src) {
 		// Save the template
 		$orig = $src;
 		
@@ -104,14 +105,14 @@ class TemplateFuzzer extends UtilsFuzzer {
 		$type = $metadata['type'];
 		
 		if (in_array($metadata['name'], $this->blacklist[$type]['name'])) {
-			printf("- %s() is in the blacklist!\n", $metadata['name']);
+			printf("- %s is in the blacklist of %s!\n", $metadata['name'], $type);
 			return;
 		}
 
-		printf("Testing %s %s()\n", $type, $metadata['name']);
+		printf("Testing %s %s\n", $type, $metadata['name']);
 			
 		foreach ($this->templates[$type] as $file) {
-			printf("- Using %s:\n", $file);
+			printf("- Using template %s:\n", $file);
 				
 			$this->runTest($php, $metadata,
 				file_get_contents(__DIR__ .'/'. $file));
