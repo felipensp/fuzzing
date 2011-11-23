@@ -1,0 +1,40 @@
+Template files
+================================================================================
+  Each template file name must be prefixed by 1, 2 or 3.
+  1 => function tests
+  2 => class method tests
+  3 => class tests (for testing handlers)
+
+Available placeholder for template files:
+
+%{classname}  = will be replaced by the class name
+%{methodname} = will be replaced by the method name
+%{funcname}   = will be replaced by the function name
+%{args}       = will be replaced by generated argument list
+%{args2}      = will be replaced by generated argument list terminated by comma
+
+
+Samples:
+
+1_00N.t
+<?php
+%{funcname}(%args);
+?>
+
+------------------
+
+2_OON.t
+<?php
+$x = new %{classname};
+$x->%{methodname}(%{args});
+
+------------------
+
+3_00N.t
+<?php
+class dummy extends %{classname} {
+	public function __construct() {
+		parent::__construct(%{args});
+	}
+}
+new dummy;
