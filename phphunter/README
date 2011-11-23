@@ -33,7 +33,7 @@ Available placeholder for template files:
 %{methodname} = will be replaced by the method name
 %{funcname}   = will be replaced by the function name
 %{args}       = will be replaced by generated argument list
-%{args2}      = will be replaced by generated argument list terminated by comma
+%{args2}      = will be replaced by generated argument list terminated with comma
 
 
 Samples:
