@@ -1,3 +1,25 @@
+Using
+================================================================================
+
+ Testing all extensions (functions + methods + classes)
+ $ php hunter.php -e=
+
+ Testing specific extension
+ $ php hunter.php -e=core
+ 
+ Testing only classes from extensions:
+ $ php hunter.php -e= --class
+
+ Testing specific function: 
+ $ php hunter.php -f=preg_grep
+ 
+ Testing specific class
+ $ php hunter.php -c=xmlwriter
+ 
+ Testing only method from a class
+ $ php hunter.php -c=xmlwriter --method-only
+ 
+
 Template files
 ================================================================================
   Each template file name must be prefixed by 1, 2 or 3.
