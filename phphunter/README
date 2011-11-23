@@ -25,9 +25,9 @@ Using
   
 Results
 ================================================================================
-  When some error is found the results can be read in the $config['stderr']
-file.
-
+  The stderr related file ($config['stderr']) will contains the report of
+segmentation faults and memory leaks (when PHP is built using --enable-debug).
+  
   Example:
   $ php hunter.php -f=preg_grep
   ...
