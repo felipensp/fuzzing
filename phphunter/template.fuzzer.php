@@ -12,7 +12,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		$types = array(1 => 'function', 2 => 'method', 3 => 'class');
 
 		// Template files
-		foreach (glob('template/{1,2,3}*.t', GLOB_BRACE) as $template) {			
+		foreach (glob(__DIR__ .'/template/{1,2,3}*.t', GLOB_BRACE) as $template) {			
 			$id = intval(substr(basename($template), 0, 1));
 			$this->templates[$types[$id]][] = $template;
 		}
