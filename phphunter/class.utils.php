@@ -1,11 +1,6 @@
 <?php
 
-abstract class UtilsFuzzer {
-	// Make the replaces in the php template code
-	public function replace(&$str, $tag, $value) {
-		$str = preg_replace('/%\{'. preg_quote($tag) .'\}/', $value, $str);
-	}
-	
+abstract class UtilsFuzzer {	
 	// Create the process to run the test code
 	public function execute($php, $tag, $src) {
 		$fdspec = array(

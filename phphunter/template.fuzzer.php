@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ .'/class.utils.php';
+require_once __DIR__ .'/class.template.php';
 
 class TemplateFuzzer extends UtilsFuzzer {
 	private $templates = array();
@@ -14,7 +15,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		// Template files
 		foreach (glob(__DIR__ .'/template/{1,2,3}*.t', GLOB_BRACE) as $template) {			
 			$id = intval(substr(basename($template), 0, 1));
-			$this->templates[$types[$id]][] = $template;
+			$this->templates[$types[$id]][] = new Template($template);
 		}
 		
 		$this->config = $config;
@@ -68,27 +69,30 @@ class TemplateFuzzer extends UtilsFuzzer {
 		return $args;
 	}
 	
-	private function runTest($php, $metadata, $src) {
-		// Save the template
-		$orig = $src;
+	private function runTest($php, $metadata, Template $template) {
+		$test_args = $template->hasArgs();
 		
-		foreach ($this->args as $key => $arg) {
-			// Change the template for each arg type
-			$src = $orig;
+		foreach ($this->args as $key => $arg) {			
+			// Prepare for next template
+			$template->clear();
 			
-			$this->replace($src, 'funcname', @$metadata['function']);
-			$this->replace($src, 'classname', @$metadata['class']);
-			$this->replace($src, 'methodname', @$metadata['method']);
+			$template->replace('funcname', @$metadata['function']);
+			$template->replace('classname', @$metadata['class']);
+			$template->replace('methodname', @$metadata['method']);
 			
 			// For argument concatenation
-			$this->replace($src, 'args2', empty($arg) ? $arg : $arg .',');
+			$template->replace('args2', empty($arg) ? $arg : $arg .',');
 			
 			// For argument without concatenation
-			$this->replace($src, 'args', $arg);
+			$template->replace('args', $arg);
 			
-			printf("- %s - Args: %s\n", $metadata['name'], $arg);
+			if ($test_args) {
+				printf("- %s - Args: %s\n", $metadata['name'], $arg);
+			} else {
+				printf("- %s:\n", $metadata['name']);
+			}
 
-			$ret = $this->execute($php, $metadata['name'], $src);
+			$ret = $this->execute($php, $metadata['name'], $template->getSource());
 					
 			switch ($ret) {
 				case 139: /* signal 11 */
@@ -98,24 +102,28 @@ class TemplateFuzzer extends UtilsFuzzer {
 					printf(" Exit status = %d\n", $ret);
 					break;
 			}
+			
+			if (!$test_args) {
+				break;
+			}
 		}
 	}
 	
 	public function runFuzzer($php, $metadata) {
 		$type = $metadata['type'];
 		
-		if (in_array($metadata['name'], $this->blacklist[$type]['name'])) {
+		if (isset($this->blacklist[$type]['name'])
+			&& in_array($metadata['name'], $this->blacklist[$type]['name'])) {
 			printf("- %s is in the blacklist of %s!\n", $metadata['name'], $type);
 			return;
 		}
 
 		printf("Testing %s %s\n", $type, $metadata['name']);
 			
-		foreach ($this->templates[$type] as $file) {
-			printf("- Using template %s:\n", $file);
+		foreach ($this->templates[$type] as $template) {
+			printf("- Using template %s:\n", $template->getPath());
 				
-			$this->runTest($php, $metadata,
-				file_get_contents($file));
+			$this->runTest($php, $metadata, $template);
 		}
 	}
 }
