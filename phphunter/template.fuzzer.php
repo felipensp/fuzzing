@@ -115,7 +115,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 			printf("- Using template %s:\n", $file);
 				
 			$this->runTest($php, $metadata,
-				file_get_contents(__DIR__ .'/'. $file));
+				file_get_contents($file));
 		}
 	}
 }
