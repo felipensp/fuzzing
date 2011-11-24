@@ -1,0 +1,9 @@
+TODO
+================================================================================
+
+  - Implement permutation with random argument types
+  
+  - Add an array of valid arguments (for constructors) for each class, so
+  that we have valid instances to test the methods.
+  
+  
