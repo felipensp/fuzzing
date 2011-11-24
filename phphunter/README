@@ -61,7 +61,7 @@ Template files
   
   1_00N.t
   <?php
-  %{funcname}(%args);
+  %{funcname}(%{args});
   ?>
 
   ------------------
