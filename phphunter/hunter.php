@@ -59,7 +59,7 @@ BugHunter - v0.1
 	--method-only     only test methods when using -c or -e
 	--function-only   only test functions when using -e
 	
-	--html            generate a HTML with stderr data
+	--html=file       generate a HTML with stderr data
 	
 Contact: felipe@php.net
 

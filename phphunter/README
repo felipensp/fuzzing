@@ -5,6 +5,9 @@ Configuration
 Using
 ================================================================================
 
+  Display all options
+  $ php hunter.php -h
+
   Testing all extensions (functions + methods + classes)
   $ php hunter.php -e=
 
@@ -25,6 +28,11 @@ Using
   
 Results
 ================================================================================
+  When running the phphunter will be generated two log files:
+  
+  - stdout => A file containing all PHP's stdout ouput as XML
+  - stderr => A file containing all PHP's stderr output as XML
+  
   The stderr related file ($config['stderr']) will contains the report of
 segmentation faults and memory leaks (when PHP is built using --enable-debug).
   
@@ -32,15 +40,11 @@ segmentation faults and memory leaks (when PHP is built using --enable-debug).
   $ php hunter.php -f=preg_grep
   ...
   == RESULTS ==
+  Error(s) found:
   - preg_grep
-  1 errors found, 1 functions/methods/classes with problem!
+  Check out the /tmp/fuzzer-stderr file!
   
-  $ cat /tmp/fuzzer-stderr 
-  >> preg_grep
-  ==============================
-  ...
-  Error: 
-  Segmentation fault 
+  You can use --html=file option to generate a HTML version of the XML log.
 
 Template files
 ================================================================================
