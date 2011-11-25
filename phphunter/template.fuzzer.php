@@ -69,7 +69,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		return $args;
 	}
 	
-	private function runTest($php, $metadata, Template $template) {
+	private function runTest($metadata, Template $template) {
 		$test_args = $template->hasArgs();
 		
 		foreach ($this->args as $key => $arg) {			
@@ -92,7 +92,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 				printf("- %s:\n", $metadata['name']);
 			}
 
-			$ret = $this->execute($php, $metadata['name'], $template->getSource());
+			$ret = $this->execute($metadata['name'], $template->getSource());
 					
 			switch ($ret) {
 				case 139: /* signal 11 */
@@ -109,7 +109,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		}
 	}
 	
-	public function runFuzzer($php, $metadata) {
+	public function runFuzzer($metadata) {
 		$type = $metadata['type'];
 		
 		if (isset($this->blacklist[$type]['name'])
@@ -123,7 +123,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		foreach ($this->templates[$type] as $template) {
 			printf("- Using template %s:\n", $template->getPath());
 				
-			$this->runTest($php, $metadata, $template);
+			$this->runTest($metadata, $template);
 		}
 	}
 }

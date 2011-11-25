@@ -7,7 +7,12 @@ set_time_limit(0);
 
 // Configuration
 $config = array(
-	'stdout' => '/tmp/fuzzer-stdout',   // Set to false if wan't to log it
+	// Set to false if wan't to log it
+	'stdout' => '/tmp/fuzzer-stdout', 
+	// File where will go the crash and memleak reports
 	'stderr' => '/tmp/fuzzer-stderr',
-	'php'    => realpath($_SERVER['_']) // Current PHP executable
+	// Current PHP executable
+	'php'    => realpath($_SERVER['_']), 
+	// Arguments to PHP executable (e.g. -dextension=...)
+	'args'   => ''
 );

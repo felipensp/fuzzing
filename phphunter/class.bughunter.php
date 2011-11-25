@@ -14,7 +14,6 @@ class BugHunter {
 	private $classes = array();
 	private $funcs   = array();
 	private $config  = array();
-	private $php;
 	
 	public function __construct($config) {
 		$this->config = $config;
@@ -23,7 +22,6 @@ class BugHunter {
 			printf("Cannot found PHP executable in the configuration!\n");
 			exit;
 		}
-		$this->php = $config['php'];
 	}
 	
 	public function setFlag($value) {
@@ -74,7 +72,7 @@ class BugHunter {
 				'name'  => $class->name,
 				'type'  => 'class'
 			);
-			$fuzzer->runFuzzer($this->php, $metadata);
+			$fuzzer->runFuzzer($metadata);
 		}		
 		if (!($this->flags & (self::CLASS_ONLY|self::FUNCTION_ONLY))) {
 			foreach ($class->getMethods() as $method) {
@@ -84,7 +82,7 @@ class BugHunter {
 					'name'   => $class->name .'::'. $method->name,
 					'type'   => 'method'
 				);
-				$fuzzer->runFuzzer($this->php, $metadata);
+				$fuzzer->runFuzzer($metadata);
 			}
 		}
 	}
@@ -101,7 +99,7 @@ class BugHunter {
 							'name'     => $function->name,
 							'type'     => 'function'
 						);
-						$fuzzer->runFuzzer($this->php, $metadata);
+						$fuzzer->runFuzzer($metadata);
 					}
 				}
 				if (!($this->flags & (self::FUNCTION_ONLY))) {
@@ -122,7 +120,7 @@ class BugHunter {
 					'name'     => $func->name,
 					'type'     => 'function'
 				);
-				$fuzzer->runFuzzer($this->php, $metadata);
+				$fuzzer->runFuzzer($metadata);
 			}
 		}
 	}

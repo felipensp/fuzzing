@@ -2,14 +2,16 @@
 
 abstract class UtilsFuzzer {	
 	// Create the process to run the test code
-	public function execute($php, $tag, $src) {
+	public function execute($tag, $src) {
 		$fdspec = array(
 		   0 => array('pipe', 'r'),
 		   1 => array('pipe', 'w'),
 		   2 => array('pipe', 'w')
 		);
+		
+		$cmd = trim($this->config['php'] . ' '. $this->config['args']);
 
-		$process = proc_open($php, $fdspec, $pipes, '/tmp');
+		$process = proc_open($cmd, $fdspec, $pipes, '/tmp');
 
 		if (is_resource($process)) {
 			fwrite($pipes[0], $src);
