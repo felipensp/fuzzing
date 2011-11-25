@@ -3,11 +3,23 @@
 require __DIR__ .'/config.php';
 require __DIR__ .'/class.bughunter.php';
 
-$longops = array('extension:', 'class:', 'function:', 'class-only', 'method-only', 'function-only');
+$longops = array(
+	// Test options
+	'extension:',
+	'class:',
+	'function:',
+	'class-only',
+	'method-only',
+	'function-only',
+	// Output options
+	'html:'
+	);
 $opts = getopt('c:e:f:h', $longops);
 
+$html = NULL;
+
 $hunter = new BugHunter($config);
-$hunter->setFuzzer(new TemplateFuzzer($config));
+$hunter->setFuzzer(new TemplateFuzzer);
 
 foreach ($opts as $opt => $value) {
 	switch ($opt) {
@@ -32,6 +44,9 @@ foreach ($opts as $opt => $value) {
 		case 'function':
 			$hunter->setFunction($value);
 			break;
+		case 'html':
+			$html = $value;
+			break;
 		default:
 			echo <<<USAGE
 BugHunter - v0.1
@@ -44,6 +59,8 @@ BugHunter - v0.1
 	--method-only     only test methods when using -c or -e
 	--function-only   only test functions when using -e
 	
+	--html            generate a HTML with stderr data
+	
 Contact: felipe@php.net
 
 USAGE;
@@ -53,3 +70,8 @@ USAGE;
 
 $hunter->run();
 $hunter->showResult();
+
+// Save stderr result as HTML
+if ($html) {
+	$hunter->saveHTML($html);
+}

@@ -8,8 +8,9 @@ class TemplateFuzzer extends UtilsFuzzer {
 	private $blacklist = array();
 	private $args      = array();
 	protected $config  = array();
+	protected $logger;
 	
-	public function __construct($config) {
+	public function init(Logger $logger, $config) {
 		$types = array(1 => 'function', 2 => 'method', 3 => 'class');
 
 		// Template files
@@ -19,10 +20,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		}
 		
 		$this->config = $config;
-		
-		// Remove the error log files
-		@unlink($config['stdout']);
-		@unlink($config['stderr']);
+		$this->logger = $logger;
 		
 		// Blacklist
 		$this->blacklist = parse_ini_file(__DIR__ .'/blacklist.ini', true);

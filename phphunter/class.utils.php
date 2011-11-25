@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ .'/class.logger.php';
+
 abstract class UtilsFuzzer {	
 	// Create the process to run the test code
 	public function execute($tag, $src) {
@@ -16,16 +18,17 @@ abstract class UtilsFuzzer {
 		if (is_resource($process)) {
 			fwrite($pipes[0], $src);
 			fclose($pipes[0]);
-				
-			$str = '>> '. $tag . "\n" . str_repeat('=', 30);
-			$str .= "\n" . $src;
 			
 			// stdout
 			if ($err = stream_get_contents($pipes[1])) {
 				if ($this->config['stdout']) {
-					$log = $str . 'Error: '. "\n". $err . "\n";
-			
-					file_put_contents($this->config['stdout'], $log, FILE_APPEND);
+					$result = array(
+						'name' => $tag,
+						'src' => $src,
+						'out' => trim($err)
+					);
+					
+					$this->logger->log(Logger::STDOUT, $result);
 				}
 			}
 			
@@ -33,9 +36,13 @@ abstract class UtilsFuzzer {
 			if ($err = stream_get_contents($pipes[2])) {
 				if ($this->config['stderr']) {
 					if (!preg_match('/^sh:/', $err)) {
-						$log = $str . 'Error: '. "\n". $err . "\n";
-					
-						file_put_contents($this->config['stderr'], $log, FILE_APPEND);
+						$result = array(
+							'name' => $tag,
+							'src' => $src,
+							'out' => trim($err)
+						);
+						
+						$this->logger->log(Logger::STDERR, $result);
 					}
 				}
 			}

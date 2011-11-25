@@ -14,6 +14,7 @@ class BugHunter {
 	private $classes = array();
 	private $funcs   = array();
 	private $config  = array();
+	private $logger;
 	
 	public function __construct($config) {
 		$this->config = $config;
@@ -22,6 +23,10 @@ class BugHunter {
 			printf("Cannot found PHP executable in the configuration!\n");
 			exit;
 		}
+		
+		$this->logger = new Logger(
+			array($config['stdout'], $config['stderr'])
+		);
 	}
 	
 	public function setFlag($value) {
@@ -62,6 +67,8 @@ class BugHunter {
 	}
 	
 	public function setFuzzer($fuzzer) {
+		$fuzzer->init($this->logger, $this->config);
+		
 		$this->fuzzers[] = $fuzzer;
 	}
 	
@@ -88,6 +95,8 @@ class BugHunter {
 	}
 	
 	public function run() {
+		$this->logger->start();
+		
 		foreach ($this->fuzzers as $fuzzer) {
 			// -e option
 			foreach ($this->exts as $ext) {
@@ -123,6 +132,8 @@ class BugHunter {
 				$fuzzer->runFuzzer($metadata);
 			}
 		}
+		
+		$this->logger->end();
 	}
 	
 	public function showResult() {
@@ -130,18 +141,23 @@ class BugHunter {
 			return;
 		}
 		
-		$log = file_get_contents($this->config['stderr']);
+		$xml = simplexml_load_file($this->config['stderr']);
 		
 		printf("== RESULTS ==\n");		
-		if (!$log) {
+		if (!$xml->stderr) {
 			printf("No errors!\n");
 			return;
 		}
-		preg_match_all('/>> (.+)/', $log, $m);
-		foreach (array_unique($m[1]) as $name) {
+		printf("Error(s) found:\n");
+		$names = array_unique(array_map('strval', $xml->xpath('//stderr/name')));
+		
+		foreach ($names as $name) {
 			printf("- %s\n", $name);
 		}
-		printf("%d errors found, %d functions/methods/classes with problem!\n",
-			count($m[1]), count(array_unique($m[1])));
+		printf("Check out the %s file!\n", $this->config['stderr']);		
+	}
+
+	public function saveHtml($file) {
+		file_put_contents($file, $this->logger->toHtml());
 	}
 }
