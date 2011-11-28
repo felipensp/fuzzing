@@ -8,13 +8,14 @@ $longops = array(
 	'extension:',
 	'class:',
 	'function:',
+	'method:',
 	'class-only',
 	'method-only',
 	'function-only',
 	// Output options
 	'html:'
 	);
-$opts = getopt('c:e:f:h', $longops);
+$opts = getopt('c:e:f:hm:', $longops);
 
 $html = NULL;
 
@@ -44,6 +45,10 @@ foreach ($opts as $opt => $value) {
 		case 'function':
 			$hunter->setFunction($value);
 			break;
+		case 'm':
+		case 'method':
+			$hunter->setMethod($value);
+			break;
 		case 'html':
 			$html = $value;
 			break;
@@ -55,6 +60,7 @@ BugHunter - v0.1
 	-e, --extension   extension to be tested
 	-c, --class       class to be tested
 	-f, --function    function to be tested
+	-m, --method      method to be tested
 	--class-only      only test class when using -c or -e
 	--method-only     only test methods when using -c or -e
 	--function-only   only test functions when using -e

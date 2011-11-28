@@ -26,6 +26,9 @@ Using
   Testing only method from a class
   $ php hunter.php -c=xmlwriter --method-only
   
+  Testing specific method generating a HTML file as output
+  $ php hunter.php -m=ZipArchive::extractTo --html=/home/foo/bar.html
+  
 Results
 ================================================================================
   When running the phphunter will be generated two log files:

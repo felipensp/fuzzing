@@ -13,6 +13,7 @@ class BugHunter {
 	private $exts    = array();
 	private $classes = array();
 	private $funcs   = array();
+	private $methods = array();
 	private $config  = array();
 	private $logger;
 	
@@ -60,6 +61,15 @@ class BugHunter {
 	public function setFunction($func) {
 		try {
 			$this->funcs[] = new ReflectionFunction($func);
+		} catch (Exception $e) {
+			printf("Error: %s\n", $e->getMessage());
+			exit;
+		}
+	}
+	
+	public function setMethod($method) {
+		try {
+			$this->methods[] = new ReflectionMethod($method);
 		} catch (Exception $e) {
 			printf("Error: %s\n", $e->getMessage());
 			exit;
@@ -128,6 +138,16 @@ class BugHunter {
 					'function' => $func->name,
 					'name'     => $func->name,
 					'type'     => 'function'
+				);
+				$fuzzer->runFuzzer($metadata);
+			}
+			// -m option
+			foreach ($this->methods as $method) {
+				$metadata = array(
+					'class'  => $method->class,
+					'method' => $method->name,
+					'name'   => $method->class .'::'. $method->name,
+					'type'   => 'method'
 				);
 				$fuzzer->runFuzzer($metadata);
 			}
