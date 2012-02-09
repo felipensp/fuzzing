@@ -55,7 +55,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 			'1',
 			'-1',
 			'NULL',
-			'fopen("php://temp")',
+			'fopen("php://temp", "r")',
 			'"abc://foobar"',
 			'"phar:///usr/local/bin/phar.phar/*%08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x"',
 			'"php://filter/resource=http://www.example.com"',
