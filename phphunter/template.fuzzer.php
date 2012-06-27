@@ -57,6 +57,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 			'NULL',
 			'fopen("php://temp", "r")',
 			'"abc://foobar"',
+			'"phar://a.a//"',
 			'"phar:///usr/local/bin/phar.phar/*%08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x"',
 			'"php://filter/resource=http://www.example.com"',
 			'"php://temp"',
@@ -69,9 +70,13 @@ class TemplateFuzzer extends UtilsFuzzer {
 			'PHP_INT_MAX',
 			'PHP_INT_MAX-1',
 			'array(new stdClass)',
-			'str_repeat("A", 10000)',
-			'&$x'
+			'str_repeat("A", 10000)',			
 		);
+		
+		// Call-time pass-by-reference has been removed in 5.5.0+
+		if (version_compare(PHP_VERSION, '5.5.0-dev', '<')) {
+			$types[] = '&$x';
+		}
 	
 		$args = array();
 		foreach ($types as $arg) {
