@@ -91,6 +91,7 @@ BugHunter - v0.1
 	-c, --class       class to be tested
 	-f, --function    function to be tested
 	-m, --method      method to be tested
+	-t, --template    uses an specific template
 	--class-only      only test class when using -c or -e
 	--method-only     only test methods when using -c or -e
 	--function-only   only test functions when using -e
