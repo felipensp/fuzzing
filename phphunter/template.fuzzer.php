@@ -34,9 +34,8 @@ class TemplateFuzzer extends UtilsFuzzer {
 		$types = array(1 => 'function', 2 => 'method', 3 => 'class');
 
 		// Template files
-		foreach (glob(__DIR__ .'/template/{1,2,3}*.t', GLOB_BRACE) as $template) {			
-			$id = intval(substr(basename($template), 0, 1));
-			$this->templates[$types[$id]][] = new Template($template);
+		foreach (glob(__DIR__ .'/template/{1,2,3}*.t', GLOB_BRACE) as $template) {
+			$this->addTemplate($template);
 		}
 		
 		$this->config = $config;
@@ -47,6 +46,22 @@ class TemplateFuzzer extends UtilsFuzzer {
 		
 		// Pre-defined set of argument types
 		$this->args = $this->genArgs();
+		
+		@unlink('/tmp/fuzzer-memcheck');
+	}
+	
+	private function addTemplate($template) {
+		$types = array(1 => 'function', 2 => 'method', 3 => 'class');
+		
+		$id = intval(substr(basename($template), 0, 1));
+		$this->templates[$types[$id]][] = new Template($template);
+	}
+	
+	public function setTemplate($template) {
+		unset($this->templates);
+		
+		$template = __DIR__ .'/template/'. $template;
+		$this->addTemplate($template);
 	}
 	
 	private function genArgs() {
@@ -92,7 +107,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		return $args;
 	}
 	
-	private function runTest($metadata, Template $template) {
+	private function runTest($metadata, Template $template, $memcheck = false) {
 		$test_args = $template->hasArgs();
 		
 		foreach ($this->args as $key => $arg) {			
@@ -115,24 +130,28 @@ class TemplateFuzzer extends UtilsFuzzer {
 				printf("- %s:\n", $metadata['name']);
 			}
 
-			$ret = $this->execute($metadata['name'], $template->getSource());
-					
-			switch ($ret) {
-				case 139: /* signal 11 */
-					printf(" SIGSEGV\n", $ret);
+			if ($memcheck) {
+				$ret = $this->memcheck($metadata['name'], $template->getSource());
+			} else {
+				$ret = $this->execute($metadata['name'], $template->getSource());
+						
+				switch ($ret) {
+					case 139: /* signal 11 */
+						printf(" SIGSEGV\n", $ret);
+						break;
+					default:
+						printf(" Exit status = %d\n", $ret);
+						break;
+				}
+				
+				if (!$test_args) {
 					break;
-				default:
-					printf(" Exit status = %d\n", $ret);
-					break;
-			}
-			
-			if (!$test_args) {
-				break;
+				}
 			}
 		}
 	}
 	
-	public function runFuzzer($metadata) {
+	public function runFuzzer($metadata, $memcheck) {
 		$type = $metadata['type'];
 		
 		if (isset($this->blacklist[$type]['name'])
@@ -146,7 +165,7 @@ class TemplateFuzzer extends UtilsFuzzer {
 		foreach ($this->templates[$type] as $template) {
 			printf("- Using template %s:\n", $template->getPath());
 				
-			$this->runTest($metadata, $template);
+			$this->runTest($metadata, $template, $memcheck);
 		}
 	}
 }

@@ -27,6 +27,7 @@ class BugHunter {
 	const METHOD_ONLY   = 1;
 	const FUNCTION_ONLY = 2;
 	const CLASS_ONLY    = 4;
+	const MEMORY_CHECK  = 8;
 	
 	private $flags   = 0;
 	private $fuzzers = array();
@@ -102,14 +103,24 @@ class BugHunter {
 		$this->fuzzers[] = $fuzzer;
 	}
 	
+	public function setTemplate($template) {
+		foreach ($this->fuzzers as $fuzzer) {
+			if ($fuzzer instanceof TemplateFuzzer) {
+				$fuzzer->setTemplate($template);
+			}
+		}
+	}
+	
 	private function runClass($fuzzer, ReflectionClass $class) {
+		$memcheck = $this->flags & self::MEMORY_CHECK;
+		
 		if (!($this->flags & (self::METHOD_ONLY|self::FUNCTION_ONLY))) {
 			$metadata = array(
 				'class' => $class->name,
 				'name'  => $class->name,
 				'type'  => 'class'
 			);
-			$fuzzer->runFuzzer($metadata);
+			$fuzzer->runFuzzer($metadata, $memcheck);
 		}		
 		if (!($this->flags & (self::CLASS_ONLY|self::FUNCTION_ONLY))) {
 			foreach ($class->getMethods() as $method) {
@@ -119,13 +130,15 @@ class BugHunter {
 					'name'   => $class->name .'::'. $method->name,
 					'type'   => 'method'
 				);
-				$fuzzer->runFuzzer($metadata);
+				$fuzzer->runFuzzer($metadata, $memcheck);
 			}
 		}
 	}
 	
 	public function run() {
 		$this->logger->start();
+		
+		$memcheck = $this->flags & self::MEMORY_CHECK;
 		
 		foreach ($this->fuzzers as $fuzzer) {
 			// -e option
@@ -138,7 +151,7 @@ class BugHunter {
 							'name'     => $function->name,
 							'type'     => 'function'
 						);
-						$fuzzer->runFuzzer($metadata);
+						$fuzzer->runFuzzer($metadata, $memcheck);
 					}
 				}
 				if (!($this->flags & (self::FUNCTION_ONLY))) {
@@ -159,7 +172,7 @@ class BugHunter {
 					'name'     => $func->name,
 					'type'     => 'function'
 				);
-				$fuzzer->runFuzzer($metadata);
+				$fuzzer->runFuzzer($metadata, $memcheck);
 			}
 			// -m option
 			foreach ($this->methods as $method) {
@@ -169,7 +182,7 @@ class BugHunter {
 					'name'   => $method->class .'::'. $method->name,
 					'type'   => 'method'
 				);
-				$fuzzer->runFuzzer($metadata);
+				$fuzzer->runFuzzer($metadata, $memcheck);
 			}
 		}
 		

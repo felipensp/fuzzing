@@ -29,15 +29,18 @@ $longops = array(
 	'class:',
 	'function:',
 	'method:',
+	'template:',
 	'class-only',
 	'method-only',
 	'function-only',
+	'memcheck',
 	// Output options
 	'html:'
 	);
-$opts = getopt('c:e:f:hm:', $longops);
+$opts = getopt('c:e:f:hm:t:', $longops);
 
 $html = NULL;
+$memcheck = false;
 
 $hunter = new BugHunter($config);
 $hunter->setFuzzer(new TemplateFuzzer);
@@ -69,8 +72,15 @@ foreach ($opts as $opt => $value) {
 		case 'method':
 			$hunter->setMethod($value);
 			break;
+		case 't':
+		case 'template':
+			$hunter->setTemplate($value);
+			break;
 		case 'html':
 			$html = $value;
+			break;
+		case 'memcheck':
+			$hunter->setFlag(BugHunter::MEMORY_CHECK);
 			break;
 		default:
 			echo <<<USAGE
@@ -84,6 +94,7 @@ BugHunter - v0.1
 	--class-only      only test class when using -c or -e
 	--method-only     only test methods when using -c or -e
 	--function-only   only test functions when using -e
+	--memcheck        performs memory checks (requires valgrind)
 	
 	--html=file       generate a HTML with stderr data
 	
@@ -94,7 +105,7 @@ USAGE;
 	}
 }
 
-$hunter->run();
+$hunter->run($memcheck);
 $hunter->showResult();
 
 // Save stderr result as HTML

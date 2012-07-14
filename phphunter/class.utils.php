@@ -75,4 +75,43 @@ abstract class UtilsFuzzer {
 		}
 		die("Cannot open process!\n");
 	}
+		
+	public function memcheck($tag, $src) {
+		$fdspec = array(
+		   0 => array('pipe', 'r'),
+		   1 => array('pipe', 'w'),
+		   2 => array('pipe', 'w')
+		);
+		
+		$cmd = 'valgrind -q --tool=memcheck --log-file=/tmp/fuzzer-memcheck ';
+		$cmd .= trim($this->config['php'] . ' '. $this->config['args']);
+		
+		$env = array('USE_ZEND_ALLOC' => '0');
+		
+		$process = proc_open($cmd, $fdspec, $pipes, '/tmp', $env);
+
+		if (is_resource($process)) {
+			fwrite($pipes[0], $src);
+			fclose($pipes[0]);
+			fclose($pipes[1]);
+			fclose($pipes[2]);	
+			
+			// stderr
+			if ($err = @file_get_contents('/tmp/fuzzer-memcheck')) {
+				if ($this->config['stderr']) {
+					if (!preg_match('/^sh:/', $err)) {
+						$result = array(
+							'name' => $tag,
+							'src' => $src,
+							'out' => trim($err)
+						);
+						
+						$this->logger->log(Logger::STDERR, $result);
+					}
+				}
+			}
+			return proc_close($process);
+		}
+		die("Cannot open process!\n");
+	}
 }
