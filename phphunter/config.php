@@ -34,5 +34,5 @@ $config = array(
 	// Current PHP executable
 	'php'    => realpath($_SERVER['_']), 
 	// Arguments to PHP executable (e.g. -dextension=...)
-	'args'   => ''
+	'args'   => '-n'
 );
