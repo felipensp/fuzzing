@@ -85,7 +85,10 @@ class TemplateFuzzer extends UtilsFuzzer {
 			'PHP_INT_MAX',
 			'PHP_INT_MAX-1',
 			'array(new stdClass)',
-			'str_repeat("A", 10000)',			
+			'str_repeat("A", 10000)',
+			'new class($a) { function b() { return 1; } }',
+			'new class() { }',
+			'(function() { yield 1; })()',
 		);
 		
 		// Call-time pass-by-reference has been removed in 5.5.0+
