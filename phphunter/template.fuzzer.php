@@ -120,12 +120,16 @@ class TemplateFuzzer extends UtilsFuzzer {
 			$template->replace('funcname', @$metadata['function']);
 			$template->replace('classname', @$metadata['class']);
 			$template->replace('methodname', @$metadata['method']);
-			
+
 			// For argument concatenation
 			$template->replace('args2', empty($arg) ? $arg : $arg .',');
 			
 			// For argument without concatenation
 			$template->replace('args', $arg);
+
+			if (version_compare(PHP_VERSION, '8.0', '>='))
+				if (preg_match('/\s*,?&\$/', $template->getSource()))
+					continue;
 			
 			if ($test_args) {
 				printf("- %s - Args: %s\n", $metadata['name'], $arg);
